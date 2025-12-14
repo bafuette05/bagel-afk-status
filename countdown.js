@@ -1,71 +1,74 @@
 const STORAGE_KEY = "bagel-afk-users";
+const HOURS = 12; // 🔥 SET YOUR TIMER LENGTH HERE
 
 const DEFAULT_USERS = [
-  { name: "Chi******ai", hours: 11 },
-  { name: "E*********3", hours: 11 },
-  { name: "A*********4", hours: 11 },
-  { name: "St****V", hours: 0 }
+  "Chi******ai",
+  "E*********3",
+  "A*********4",
+  "St****V"
 ];
 
 const grid = document.getElementById("grid");
 
-/* ---------- Load or initialize users ---------- */
-function loadUsers() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) return JSON.parse(saved);
+/* ---------- Initialize timers ONCE ---------- */
+function initTimers() {
+  if (localStorage.getItem(STORAGE_KEY)) return;
 
   const now = Date.now();
-  const users = DEFAULT_USERS.map(u => ({
-    name: u.name,
-    endTime: u.hours > 0 ? now + u.hours * 3600 * 1000 : now
+  const users = DEFAULT_USERS.map(name => ({
+    name,
+    endTime: now + HOURS * 60 * 60 * 1000
   }));
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-  return users;
 }
 
-const users = loadUsers();
+/* ---------- Load timers ---------- */
+function loadUsers() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+}
 
 /* ---------- Helpers ---------- */
 function format(ms) {
   if (ms <= 0) return "00:00:00";
 
-  const total = Math.floor(ms / 1000);
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
 
   return (
     String(h).padStart(2, "0") + ":" +
     String(m).padStart(2, "0") + ":" +
-    String(s).padStart(2, "0")
+    String(sec).padStart(2, "0")
   );
 }
 
-/* ---------- Render cards ONCE ---------- */
-users.forEach(user => {
-  const card = document.createElement("div");
-  card.className = "card";
+/* ---------- Render cards once ---------- */
+function render() {
+  grid.innerHTML = "";
+  loadUsers().forEach(user => {
+    const card = document.createElement("div");
+    card.className = "card";
 
-  const name = document.createElement("div");
-  name.className = "name";
-  name.textContent = user.name;
+    const name = document.createElement("div");
+    name.className = "name";
+    name.textContent = user.name;
 
-  const time = document.createElement("div");
-  time.className = "time";
-  time.dataset.end = user.endTime;
+    const time = document.createElement("div");
+    time.className = "time";
+    time.dataset.end = user.endTime;
 
-  card.appendChild(name);
-  card.appendChild(time);
-  grid.appendChild(card);
-});
+    card.appendChild(name);
+    card.appendChild(time);
+    grid.appendChild(card);
+  });
+}
 
 /* ---------- Update timers ---------- */
-function updateTimers() {
+function tick() {
   document.querySelectorAll(".time").forEach(el => {
-    const end = Number(el.dataset.end);
-    const remaining = end - Date.now();
-
+    const remaining = el.dataset.end - Date.now();
     el.textContent = format(remaining);
 
     const card = el.closest(".card");
@@ -74,5 +77,8 @@ function updateTimers() {
   });
 }
 
-updateTimers();
-setInterval(updateTimers, 1000);
+/* ---------- RUN ---------- */
+initTimers();   // 👈 only sets timers if none exist
+render();
+tick();
+setInterval(tick, 1000);
