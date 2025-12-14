@@ -1,0 +1,48 @@
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #0b1220, #05070c);
+  color: white;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  padding: 40px;
+}
+
+.title {
+  text-align: right;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  max-width: 1000px;
+}
+
+.card {
+  padding: 20px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.6);
+  text-align: center;
+  border: 2px solid transparent;
+}
+
+.card.active {
+  border-color: #00ff7f;
+}
+
+.card.inactive {
+  border-color: #ff3b3b;
+}
+
+.name {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+
+.time {
+  font-size: 2.2rem;
+  font-weight: bold;
+}
